@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import {
   createTheme,
   MantineProvider,
+  useMantineColorScheme,
+  useComputedColorScheme,
   Button,
   TextInput,
   Modal,
@@ -18,7 +20,7 @@ import {
   Alert,
 } from "@mantine/core";
 
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useClipboard } from "@mantine/hooks";
 
 import { wordList } from "./words/wordList";
 import {
@@ -61,6 +63,7 @@ function App() {
   const [gameWon, setGameWon] = useState(false);
   const [error, setError] = useState("");
   const [opened, { open, close }] = useDisclosure(false);
+  const clipboard = useClipboard({ timeout: 500 });
   //const theme = useMantineTheme();
 
   function resetGame() {
@@ -118,8 +121,22 @@ function App() {
     }
   };
 
+  const share = async (clipboard, start, end, length) => {
+    const text = `${start} -> ${end}\n${length} moves`
+
+    if (navigator.canShare) {
+      await navigator.share({
+        text: text,
+        url: 'https://playmorphology.com'
+      })
+    }
+    else {
+      clipboard.copy(text)
+    }
+  }
+
   return (
-    <MantineProvider theme={theme}>
+    <MantineProvider defaultColorScheme='auto' theme={theme}>
       <div style={{ width: "100vw", height: "100vh" }}>
         <Container>
           <Title
@@ -131,23 +148,6 @@ function App() {
           </Title>
         </Container>
 
-        <Center className="">
-          <Stack>
-            <Text>
-              Start word:{" "}
-              <span className="">
-                <b>{startWord}</b>
-              </span>
-            </Text>
-            <Text>
-              Target word:{" "}
-              <span className="">
-                <b>{targetWord}</b>
-              </span>
-            </Text>
-          </Stack>
-        </Center>
-        <br />
         <Center component="container">
           <Stack>
             <Title order={3}>Your Chain:</Title>
@@ -165,7 +165,24 @@ function App() {
             </Timeline>
           </Stack>
         </Center>
-
+        <br />
+        <Center className="">
+          <Stack>
+            <Text>
+              Start word:{" "}
+              <span className="">
+                <b>{startWord}</b>
+              </span>
+            </Text>
+            <Text>
+              Target word:{" "}
+              <span className="">
+                <b>{targetWord}</b>
+              </span>
+            </Text>
+          </Stack>
+        </Center>
+        
         {!gameWon && (
           <Container style={{width: '75%', display: 'flex', flexDirection: 'column', margin: 'auto'}}>
             <form onSubmit={handleSubmit} className="">
@@ -207,7 +224,7 @@ function App() {
 
         {gameWon && (
           <Alert 
-            style={{width: '25rem', margin: 'auto', marginTop: '1rem'}} 
+            style={{width: '25rem', maxWidth: '85%', margin: 'auto', marginTop: '1rem'}} 
             variant='light' 
             color='green' 
             radius='xl' 
@@ -216,10 +233,25 @@ function App() {
           </Alert>
         )}
       </div>
-      <Modal size="md" opened={opened} onClose={close} centered>
-        You win!
+      <Modal 
+        size="auto" 
+        opened={opened} 
+        onClose={close} 
+        centered
+        title='You win!'
+        transitionProps={{ transition: 'fade', duration: 600, timingFunction: 'linear'}}
+        style={{maxWidth: '85%'}}
+        >
+        <p>And you did it in only {currentChain.length - 1} moves!</p>
+        <p>Play again or challenge a friend</p>
+        
         <Group>
-          <Button>Share</Button>
+          <Button
+            color={clipboard.copied ? 'green' : ''}
+            onClick={() => share(clipboard, startWord, targetWord, currentChain.length - 1)}
+          >
+            {clipboard.copied ? 'Copied' : 'Share'}
+          </Button>
           <Button
             onClick={() => {
               resetGame();

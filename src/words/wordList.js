@@ -9,7 +9,6 @@ const wordList2 = [
 ];
 
 export const wordList = [
-  "zymic",
   "cigar",
   "rebut",
   "sissy",
@@ -2319,4 +2318,12 @@ export const wordList = [
   "flack",
   "widow",
   "augur",
+  "poach",
+  "twink",
+  "chink",
+  "wrang",
+  "whore",
+  "pussy",
+  "twill",
+  "shill",
 ];
