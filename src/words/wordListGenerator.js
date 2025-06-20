@@ -30,23 +30,26 @@ export function generateGameWordList() {
 export function generateWordPair(words, graph, minSteps = 2, maxSteps = 5) {
   function findPath(start, end, maxDepth) {
     if (maxDepth === 0) return null;
-    
-    const visited = new Set();
+
+    const visited = new Set([start]);
     const queue = [[start, [start]]];
-    
+
     while (queue.length > 0) {
       const [current, path] = queue.shift();
-      
+
       if (current === end) return path;
-      
-      for (const neighbor of graph.get(current)) {
+
+      // Stop exploring if we've reached the maximum allowed depth
+      if (path.length - 1 >= maxDepth) continue;
+
+      for (const neighbor of graph.get(current) || []) {
         if (!visited.has(neighbor)) {
           visited.add(neighbor);
           queue.push([neighbor, [...path, neighbor]]);
         }
       }
     }
-    
+
     return null;
   }
 
