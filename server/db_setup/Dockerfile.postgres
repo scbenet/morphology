@@ -1,0 +1,5 @@
+FROM postgres:18
+
+COPY postgresql.conf /etc/postgresql/postgresql.conf
+HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3  \
+    CMD pg_isready -U dbuser -d morphdb || exit 1

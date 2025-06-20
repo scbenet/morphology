@@ -1,0 +1,4 @@
+.env
+node_modules
+*.log
+db_setup/docker-compose.yml
